@@ -7,7 +7,7 @@
 #define CPU_FREQUENCY_IN_MHZ 600
 
 int main() {
-
+    
     struct tms start, end;
     times(&start);
     long n = 10000000; // 10 million
