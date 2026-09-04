@@ -1,4 +1,5 @@
 #include "wait.h"
+#include "time.h"
 #include <stdio.h>
 
 void busy_wait(struct timespec t){
