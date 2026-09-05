@@ -25,13 +25,15 @@ int main() {
 
     printf("Average latency: %f ns\n", latency_per_read);
 
-    int ns_max = 50;
+    int ns_max = 100;
     int histogram[ns_max];
     memset(histogram, 0, sizeof(int)*ns_max);
     
 
+    int n_res = 1e7;
+    int sum_counts_included = 0;
     // resoltion
-    for(int i = 0; i < 10*1000*1000; i++){
+    for(int i = 0; i < n_res; i++){
         struct timespec t1, t2;
 
         clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -44,9 +46,19 @@ int main() {
         }
     }
 
+    printf("\n%-15s | %s\n", "Nanoseconds", "Count");
+    printf("---------------------------\n");
+
     for(int i = 0; i < ns_max; i++){
-        printf("%d\n", histogram[i]);
+        // Only print rows that actually captured measurements
+        if(histogram[i] > 0) {
+            printf("%-15d | %d\n", i, histogram[i]);
+            sum_counts_included += histogram[i];
+        }
     }
+    printf("---------------------------\n");
+    
+    printf("Number of resolution checks not included in hist: %d \n", n_res-sum_counts_included);
 
     return 0;
 }

@@ -42,13 +42,13 @@ int main() {
     uint64_t total_cycles = end_cycles - start_cycles;
     double cycles_per_read = (double)total_cycles / n;
     
-    double total_seconds = (double)total_cycles / (CPU_FREQUENCY_IN_MHZ * 1000000.0);
+    double total_seconds = (double)total_cycles / (CPU_FREQUENCY_IN_MHZ * 1e6);
 
     printf("Total cpu cycles: %lu\n", total_cycles);
     printf("Average cycles per iteration: %.2f\n", cycles_per_read);
 
-    printf("Number of seconds: %.9f\n", total_seconds);
-    printf("Average seconds per iteration: %.9f\n", total_seconds*1000000000/n);
+    printf("Number of total nanoseconds: %.9f\n", total_seconds*1e9);
+    printf("Average nanoseconds per iteration: %.9f\n", total_seconds*1e9/n);
 
 
 
@@ -56,8 +56,11 @@ int main() {
     int histogram[ns_max];
     memset(histogram, 0, sizeof(int)*ns_max);
 
+    int n_res = 1e7;
+    int sum_counts_included = 0;
+
     // resoltion
-    for(int i = 0; i < 10*1000*1000; i++){
+    for(int i = 0; i < n_res; i++){
         
         uint64_t t1 = rdtsc();
         uint64_t t2 = rdtsc();
@@ -69,9 +72,21 @@ int main() {
         }
     }
 
+    printf("\n%-15s | %s\n", "Nanoseconds", "Count");
+    printf("---------------------------\n");
+
     for(int i = 0; i < ns_max; i++){
-        printf("%d\n", histogram[i]);
+        // Only print rows that actually captured measurements
+        if(histogram[i] > 0) {
+            printf("%-15d | %d\n", i, histogram[i]);
+            sum_counts_included += histogram[i];
+
+        }
     }
+    printf("---------------------------\n");
+    
+    printf("Number of resolution checks not included in hist: %d \n", n_res-sum_counts_included);
+
 
     return 0;
 }
